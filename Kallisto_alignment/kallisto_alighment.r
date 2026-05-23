@@ -19,7 +19,7 @@ sample10
 sample11
 sample12
 
-#' run kallisto loop (corrected version)
+#' run kallisto loop 
 mkdir -p logs
 
 while read -r sample
