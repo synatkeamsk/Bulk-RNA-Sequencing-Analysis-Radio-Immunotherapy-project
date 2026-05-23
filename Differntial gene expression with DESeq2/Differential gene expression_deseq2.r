@@ -410,8 +410,8 @@ vsd.corr <- cor(vsd.matrix)
 #' match row name 
 rownames(Phenotype) <- colnames(vsd.corr)  
 
-#' Euclidean/complete =================
-# default distance and linkage =============================
+#' Euclidean/complete 
+# default distance and linkage 
 
 pheatmap(vsd.corr, annotation= select(Phenotype, Group), show_rownames = TRUE, 
          cex=1, border_color=TRUE, annotation_col = select(Phenotype, Group), 
@@ -419,7 +419,7 @@ pheatmap(vsd.corr, annotation= select(Phenotype, Group), show_rownames = TRUE,
          clustering_method = "ward.D2", 
          cluster_cols = TRUE, cluster_rows = FALSE)
 
-#' rld  ===================
+#' rld  
 # Extract the matrix of transformed counts
 rld.matrix <- assay(rld)
 
@@ -429,8 +429,8 @@ rld.corr <- cor(rld.matrix)
 # match row name 
 rownames(Phenotype) <- colnames(rld.corr)  
 
-#' Euclidean/complete =================
-# default distance and linkage =============================
+#' Euclidean/complete 
+# default distance and linkage 
 pheatmap(rld.corr, annotation= select(Phenotype, Group), show_rownames = TRUE, 
          cex=1, border_color=TRUE, annotation_col = select(Phenotype, Group), 
          clustering_distance_cols = "maximum", clustering_distance_rows = "maximum",
@@ -452,7 +452,7 @@ plotPCA(vsd, intgroup=c("Group")) +
   theme_bw() + 
   labs(title = "Principle component analysis")
 
-# Advanced plot ====================================
+# Advanced plot 
 pcaData <- plotPCA(vsd, intgroup=c("Group", "Treatment"), returnData=TRUE)
 percentVar <- round(100 * attr(pcaData, "percentVar"))
 pcaData$Group<- factor(pcaData$Group, levels = c('0Gy_3h', '0Gy_1d', '0Gy_4d', '0Gy_8d', 
@@ -466,10 +466,7 @@ labs(title = "Principle Component Analysis") +
         axis.text = element_text(face = "bold", size=12), axis.title = element_text(face = "bold", size=13),
         legend.title = element_text(size = 13, face = "bold"), legend.text = element_text(size = 12))
 
-
 # link= https://stackoverflow.com/questions/34869768/how-to-make-a-pca-plots-as-i-posted-here 
-
-
 # Save high quality plot 
 ggsave("PCA.tiff", plot = pca, height=10, width = 6, units = "in", dpi = 300)
 
@@ -497,7 +494,7 @@ meta
 #' mapping
 rownames(annotation.row)<- rownames(sampleDistMatrix)
 
-#' plot the pheatmap ====================
+#' plot the pheatmap 
 library(pheatmap)
 pheatmap(sampleDistMatrix,
          clustering_distance_rows=sampleDists,
@@ -505,7 +502,7 @@ pheatmap(sampleDistMatrix,
          annotation_row = annotation.row, 
          border_color = TRUE, cluster_cols = F)
 
-#' Code chunk for pheat-map from ASI worshop ================
+#' Code chunk for pheat-map from ASI worshop 
 sampleDists.vsd.blind <- dist(t(assay(vsd)))
 sampleDistMatrix.vsd.blind <- as.matrix(sampleDists.vsd.blind)
 
@@ -516,11 +513,11 @@ annotation.row <- data.frame(Treatment = factor(vsd@colData$Treatment,
                                             levels = c("0Gy","2Gy × 1","2Gy × 3",
                                                        "2Gy × 5", "6Gy × 1", "6Gy × 2")))
 
-#' mapping the data =========================================
+#' mapping the data 
 rownames(annotation.row) <- rownames(sampleDistMatrix.vsd.blind)
 head(annotation.row)
 
-#' plot pheatmap =================================
+#' plot pheatmap 
 # Create a colour palette for the heatmap
 colours <- colorRampPalette(rev(brewer.pal(9, "Blues")))
 pheatmap(sampleDistMatrix.vsd.blind, clustering_distance_rows = sampleDists.vsd.blind,
@@ -537,12 +534,9 @@ df <- as.data.frame(colData(dds_all)[,c("Group","Treatment")])
 pheatmap(assay(ntd)[select,], cluster_rows=FALSE, show_rownames=FALSE,
          cluster_cols=TRUE, annotation_col=df)
 
-
-
 #' Volcano plot 
 Volcano.a <- all_time_additive[order(all_time_additive$padj),]
 Volcano.a<- na.omit(Volcano.a)
-
 
 #' create data.frame
 results.a<- as.data.frame(mutate(as.data.frame(Volcano.a), 
@@ -570,7 +564,7 @@ ggplot(results.a, aes(log2FoldChange, -log10(pvalue))) +
 
 #' exporting normalized count 
 # Does normalized count impact by design formula: https://support.bioconductor.org/p/106548/
-# sample distance heatmap ==========================================================
+# sample distance heatmap 
 
 #' 1). read the raw_count back in 
 
@@ -651,7 +645,7 @@ rownames(sampleDistMatrix) <- paste(vsd$Mouse, sep="-")
 colnames(sampleDistMatrix) <- NULL
 colors <- colorRampPalette( rev(brewer.pal(9, "Blues")))(255)
 
-#' annotation ============================ 
+#' annotation  
 annotation.row <- data.frame(Treatment = factor(vsd@colData$Treatment,
                                                 levels = c("Radiotherapy", "Sham-radiotherapy")), 
                              Group = factor(vsd@colData$Group,
@@ -660,10 +654,10 @@ annotation.row <- data.frame(Treatment = factor(vsd@colData$Treatment,
                                                        "2Gy×5:4 days", "2Gy×5:8 days")))
 
 
-# mapping =======================
+# mapping 
 rownames(annotation.row)<- rownames(sampleDistMatrix)
 
-# plot the pheatmap ====================
+# plot the pheatmap 
 library(pheatmap)
 pheatmap(sampleDistMatrix,
          clustering_distance_rows=sampleDists,
