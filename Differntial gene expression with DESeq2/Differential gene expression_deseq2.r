@@ -3,6 +3,14 @@
 library(DESeq2)
 library(tidyverse)
 library("readxl")
+library(tidyverse)
+library(ggsignif)
+library(ggpubr)
+require(readxl)
+library(ggthemes)
+library(pheatmap)
+library("RColorBrewer")
+library(ggrepel)
 
 #' Write the csv file for now 
 write.csv(counts, file = "Raw_Cound_data.csv") ## this is raw count a.k.a unnormalized
@@ -35,7 +43,6 @@ Raw.Count_3hrs<- Raw.Count %>% select(M267, M273, M276, M306, M271, M285, M288, 
 #'=====================================================================================================
                                       # 3 hours post-radiotherapy
 #' ====================================================================================================
-
 #' select relevant metatdata at 3hr
 Pheno_3hrs<- Phenotype %>% 
   filter(Group %in% c("0Gy_3h", "RT_3h"))
@@ -92,22 +99,19 @@ meta
 Pheno_1d<- meta %>% 
   filter(Group %in% c("0Gy:1 day", "2Gy×5:1 day"))
 Pheno_1d
-## DEseq2 object 
-library(tidyverse)
-library(DESeq2)
+#' DEseq2 object 
 dds_1d <- DESeqDataSetFromMatrix(countData = Raw.Count_1d,
                               colData = Pheno_1d,
                               design = ~ Group)
 
 
-## Prefiltering: not necessary for DESeq, but good to reduce memory size and increase speed of transformation 
+#' Prefiltering: not necessary for DESeq, but good to reduce memory size and increase speed of transformation 
 keep <- rowSums(counts(dds_1d)) >= 10
 dds_1d <- dds_1d[keep,]
 dds_1d <- estimateSizeFactors(dds_1d)  ## DESeq2 did not put this one as a workflow 
 dds_1d$Group <- factor(dds_1d$Group, levels = c("0Gy:1 day","2Gy×5:1 day"))
 
-#dds <- dds[, dds$Group %in% c("0Gy_1d","RT_1d")]
-
+# dds <- dds[, dds$Group %in% c("0Gy_1d","RT_1d")]
 # DESeq
 dds_1d <- DESeq(dds_1d)
 
@@ -161,7 +165,6 @@ volcano
 #'=====================================================================================================
                                       # 4 days post-radiotherapy
 #'=====================================================================================================
-
 #' Select sample of 4 days 
 Raw.Count_4d<- Raw.Count %>% select(M265, M275, M283, M303, M266, M279, M280, M296)
 
@@ -236,7 +239,6 @@ R_8day <- results(dds_8d, alpha = 0.05)
 summary(R_8day)
 
 #' Save differentially expressed genes at 8 days
-
 #' Upregulated genes 
 up_gene_8day<- R_8day[which(R_8day$log2FoldChange > 0 & R_8day$padj < .05),]
 #upgene<- as.data.frame(up_gene)
@@ -360,21 +362,9 @@ meanSdPlot(assay(ntd))
 meanSdPlot(assay(vsd))
 meanSdPlot(assay(rld))
 
-#' Data quality assessment by sample clustering and visualization
-#' Heatmap of the count matrix
-library("pheatmap")
-
 #' my classic code from previous session 
 #' Convert Phenotype to factor  
 #' read metadata
-
-library(tidyverse)
-library(ggsignif)
-library(ggpubr)
-require(readxl)
-library(ggthemes)
-
-#' Read data 
 metadata<- read_excel("metadata.xlsx")
 metadata
 
@@ -412,7 +402,6 @@ rownames(Phenotype) <- colnames(vsd.corr)
 
 #' Euclidean/complete 
 # default distance and linkage 
-
 pheatmap(vsd.corr, annotation= select(Phenotype, Group), show_rownames = TRUE, 
          cex=1, border_color=TRUE, annotation_col = select(Phenotype, Group), 
          clustering_distance_cols = "maximum", clustering_distance_rows = "maximum",
@@ -439,9 +428,7 @@ pheatmap(rld.corr, annotation= select(Phenotype, Group), show_rownames = TRUE,
 
 
 #' PCA plot 
-
 #' Treat vs. not treated
-
 plotPCA(vsd, intgroup=c("condition", "Group"))
 plotPCA(vsd, intgroup=c("Treatment")) + 
   theme_bw() + 
@@ -470,15 +457,12 @@ labs(title = "Principle Component Analysis") +
 # Save high quality plot 
 ggsave("PCA.tiff", plot = pca, height=10, width = 6, units = "in", dpi = 300)
 
-## sample distance heatmap 
-
+#' sample distance heatmap 
 sampleDists <- dist(t(assay(vsd)))
-library("RColorBrewer")
 sampleDistMatrix <- as.matrix(sampleDists)
 rownames(sampleDistMatrix) <- paste(vsd$Mouse, sep="-")
 colnames(sampleDistMatrix) <- NULL
 colors <- colorRampPalette( rev(brewer.pal(9, "Blues")) )(255)
-
 
 #' annotation
 Phenotype
@@ -488,14 +472,12 @@ annotation.row <- data.frame(Treatment = factor(vsd@colData$Treatment,
                                             levels = c("0Gy (0.1 day)","0Gy (1 day)","0Gy (4 days)",
                                                        "0Gy (8 days)", "2Gy × 5 (0.1 day)", "2Gy × 5 (1 day)", 
                                                        "2Gy × 5 (4 days)", "2Gy × 5 (8 days)")))
-
 meta
 
 #' mapping
 rownames(annotation.row)<- rownames(sampleDistMatrix)
 
 #' plot the pheatmap 
-library(pheatmap)
 pheatmap(sampleDistMatrix,
          clustering_distance_rows=sampleDists,
          clustering_distance_cols=sampleDists,
@@ -527,7 +509,6 @@ pheatmap(sampleDistMatrix.vsd.blind, clustering_distance_rows = sampleDists.vsd.
 
 
 #' Another heatmap 
-library("pheatmap")
 select <- order(rowMeans(counts(dds_all,normalized=TRUE)),
                 decreasing=TRUE)[1:20]
 df <- as.data.frame(colData(dds_all)[,c("Group","Treatment")])
@@ -547,7 +528,6 @@ is.na(results.a)  ## check missing value
 
 #' ggplot plus ggrepel
 options(ggrepel.max.overlaps = Inf)
-library(ggrepel)
 ggplot(results.a, aes(log2FoldChange, -log10(pvalue))) + 
   theme_classic() +
   geom_point(aes(col = sig)) +
@@ -561,13 +541,11 @@ ggplot(results.a, aes(log2FoldChange, -log10(pvalue))) +
   geom_text_repel(data=results.a[1:60,], 
   aes(label=rownames(results.a[1:60,]))) 
 
-
 #' exporting normalized count 
 # Does normalized count impact by design formula: https://support.bioconductor.org/p/106548/
 # sample distance heatmap 
 
 #' 1). read the raw_count back in 
-
 Raw.Count<- read.csv("Raw.Count.csv", stringsAsFactors = TRUE, row.names=1)
 Raw.Count<- Raw.Count %>% mutate_if(is.numeric, round, digits=0)
 Raw.Count
@@ -583,12 +561,9 @@ meta$Mouse<- as.factor(meta$Mouse)
 meta$Treatment<- as.factor(meta$Treatment)
 
 #' model object 
-
 dds <- DESeqDataSetFromMatrix(countData = Raw.Count,
                               colData = meta,
                               design = ~ Group)
-
-
 #' filter gene with at least 10 counts
 keep <- rowSums(counts(dds)) >= 10
 dds<- dds[keep,]
@@ -639,7 +614,6 @@ ggsave("PCA.tiff", plot = pca, height=4, width =7, units = "in", dpi = 300)
 
 #' Heatmap 
 sampleDists <- dist(t(assay(vsd)))
-library("RColorBrewer")
 sampleDistMatrix <- as.matrix(sampleDists)
 rownames(sampleDistMatrix) <- paste(vsd$Mouse, sep="-")
 colnames(sampleDistMatrix) <- NULL
@@ -653,12 +627,10 @@ annotation.row <- data.frame(Treatment = factor(vsd@colData$Treatment,
                                                        "0Gy:8 days", "2Gy×5:0.1 day", "2Gy×5:1 day", 
                                                        "2Gy×5:4 days", "2Gy×5:8 days")))
 
-
 # mapping 
 rownames(annotation.row)<- rownames(sampleDistMatrix)
 
 # plot the pheatmap 
-library(pheatmap)
 pheatmap(sampleDistMatrix,
          clustering_distance_rows=sampleDists,
          clustering_distance_cols=sampleDists,
