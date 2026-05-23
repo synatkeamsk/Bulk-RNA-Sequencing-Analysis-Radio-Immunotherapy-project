@@ -201,9 +201,7 @@ Go_down
 deg<-     ggarrange(hall, hallmark_down, Bio, Go_down, ncol = 2, labels = c("A", "B", "C", "D"), 
           nrow = 2, font.label = list(size=16)) 
 deg
-
 deg_down<-     ggarrange(Bio, Go_down, ncol = 1, labels = c("A", "B"), 
                     nrow = 2, font.label = list(size=16)) 
-
 deg_down
 ggsave("deg.tiff", plot = deg, height=12, width = 12, units = "in", dpi = 300)
