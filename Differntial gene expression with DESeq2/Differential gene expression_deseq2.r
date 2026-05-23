@@ -2,14 +2,13 @@
 #' Differential gene expression
 library(DESeq2)
 library(tidyverse)
-library("readxl")
-library(tidyverse)
+library(readxl)
 library(ggsignif)
 library(ggpubr)
 require(readxl)
 library(ggthemes)
 library(pheatmap)
-library("RColorBrewer")
+library(RColorBrewer)
 library(ggrepel)
 
 #' Write the csv file for now 
